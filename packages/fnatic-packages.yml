@@ -1,0 +1,83 @@
+generated: '2026-08-04'
+method: searched
+source: 'npm registry search, PyPI, crates.io, https://api.github.com/orgs/FNATIC/repos'
+description: >-
+  Fnatic ships no client SDK for any API — it has no API to ship one for. The registries
+  hold exactly one first-party Fnatic package: a Sanity CMS studio plugin published under
+  the @fnc npm scope, used to build fnatic.com's own content workflow. It is recorded here
+  as a genuine first-party artifact, but it is NOT an API client library, so no `SDKs`
+  pointer is emitted on the strength of it.
+sdk_count: 0
+packages:
+  - language: typescript
+    registry: npm
+    name: '@fnc/sanity-plugin-vimeo-browser'
+    version: 1.0.15
+    url: https://www.npmjs.com/package/@fnc/sanity-plugin-vimeo-browser
+    install: npm install @fnc/sanity-plugin-vimeo-browser
+    repository: https://github.com/FNATIC/sanity-plugin-vimeo-browser
+    description: A Sanity plugin for browsing and uploading Vimeo videos.
+    official: true
+    is_api_client: false
+    note: >-
+      A CMS authoring plugin for Fnatic's own Sanity studio (project 5gii1snx), not a
+      client library for any Fnatic API.
+registries_probed:
+  - registry: npm
+    query: fnatic
+    result: >-
+      One first-party hit (@fnc/sanity-plugin-vimeo-browser). The only other match,
+      "fnatic-component-test" 0.0.1, is an unattributed placeholder with no description
+      and no repository — not recorded as Fnatic's.
+  - registry: pypi
+    query: fnatic
+    result: 404 — no package
+  - registry: crates.io
+    query: fnatic
+    result: 0 crates
+  - registry: rubygems
+    result: no first-party package found
+  - registry: packagist
+    result: no first-party package found
+  - registry: maven-central
+    result: no first-party package found
+  - registry: nuget
+    result: no first-party package found
+  - registry: pkg.go.dev
+    result: no first-party package found
+github_org:
+  url: https://github.com/FNATIC
+  login: FNATIC
+  created: '2021-03-30'
+  location: London, UK
+  email: tech@fnatic.com
+  public_repos: 5
+  repos:
+    - name: sanity-plugin-vimeo-browser
+      language: TypeScript
+      first_party: true
+      note: Source of the one published npm package.
+    - name: sanity-super-pane
+      language: TypeScript
+      first_party: false
+      note: Fork of a third-party Sanity desk-tool pane.
+    - name: fnc-id-redis
+      first_party: true
+      note: 'Fly.io Redis instance for the Fnatic ID service. Infrastructure, not a library.'
+    - name: react-native-markdown-view
+      first_party: false
+      note: Fork.
+    - name: flash-list
+      first_party: false
+      note: Fork of Shopify's flash-list.
+  assessment: >-
+    The org is a small mobile/web engineering footprint — two Sanity CMS plugins, one
+    Redis instance config for Fnatic ID, and two React Native forks. No API, no SDK, no
+    spec, no developer tooling.
+x-evidence:
+  fetched: '2026-08-04'
+  urls:
+    - 'https://registry.npmjs.org/-/v1/search?text=fnatic&size=20'
+    - https://pypi.org/pypi/fnatic/json
+    - 'https://crates.io/api/v1/crates?q=fnatic'
+    - 'https://api.github.com/orgs/FNATIC/repos?per_page=100'

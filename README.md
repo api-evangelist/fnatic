@@ -42,5 +42,21 @@
 > Full detail: **[Where this data comes from](https://apievangelist.com/about/where-our-data-comes-from)**
 <!-- API-EVANGELIST-PROVENANCE:END -->
 
-Fnatic is a company surfaced via the API Evangelist harvest backlog (source: secondary-market) and added to the network as a stub for full-pipeline profiling.
+Fnatic is a London-headquartered global esports performance brand founded in 2004, running professional
+teams across five game titles alongside the Fnatic Gear hardware line and an apparel/merchandise business.
+
+Fnatic operates no developer program and publishes no OpenAPI, developer portal or API documentation.
+fnatic.com is a Next.js front end over a Sanity CMS with a first-party member-account system ("Fnatic ID")
+that exposes no discovery document. Its one machine-readable surface is the Shopify-hosted store at
+shop.fnatic.com, which serves:
+
+- an **anonymously introspectable Storefront GraphQL API** (416 types, 35 queries, 41 mutations)
+- a **Universal Commerce Protocol** merchant profile at `/.well-known/ucp` plus a **UCP MCP** commerce
+  endpoint at `/api/ucp/mcp` (tools/list gated on an agent profile URI)
+- **OpenID Connect**, RFC 8414 and RFC 9728 discovery for customer accounts
+- a provider-authored **`/agents.md`** (mirrored at `/llms.txt`) that requires explicit buyer approval
+  before any agent completes a payment
+
+- https://fnatic.com/
+- https://shop.fnatic.com/agents.md
 - https://forgeglobal.com/fnatic_stock/

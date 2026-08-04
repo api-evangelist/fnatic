@@ -1,0 +1,147 @@
+generated: '2026-08-04'
+method: probed
+source: https://shop.fnatic.com/api/2026-04/graphql.json
+description: >-
+  Fnatic's official shop runs on Shopify, and the Shopify Storefront GraphQL API is
+  served from Fnatic's own host at https://shop.fnatic.com/api/{version}/graphql.json.
+  Introspection is ANONYMOUS on this host — the full schema (416 types, 35 query fields,
+  41 mutations) was retrieved without a Storefront access token on 2026-08-04, and the
+  SDL below is rendered verbatim from that introspection response. This is the only
+  machine-readable API contract reachable anywhere on a fnatic.com host; fnatic.com
+  itself (a Next.js front end over Sanity CMS) publishes no OpenAPI, no GraphQL endpoint
+  and no developer program.
+endpoint: https://shop.fnatic.com/api/2026-04/graphql.json
+endpoint_template: https://shop.fnatic.com/api/{version}/graphql.json
+introspection:
+  gated: false
+  verified: '2026-08-04'
+  http_status: 200
+  content_type: application/json
+  method: POST
+schema:
+  file: fnatic-storefront.graphql
+  format: SDL
+  derived_from: GraphQL introspection response (__schema)
+  query_type: QueryRoot
+  mutation_type: Mutation
+  subscription_type: null
+  types_total: 416
+  types_by_kind:
+    object: 262
+    input_object: 53
+    enum: 62
+    union: 16
+    interface: 10
+    scalar: 13
+  query_fields: 35
+  mutation_fields: 41
+  deprecated_fields: 51
+  relay_connections: 28
+query_fields:
+  - article
+  - articles
+  - blog
+  - blogByHandle
+  - blogs
+  - cart
+  - cartCompletionAttempt
+  - collection
+  - collectionByHandle
+  - collections
+  - customer
+  - localization
+  - locations
+  - menu
+  - metaobject
+  - metaobjects
+  - node
+  - nodes
+  - page
+  - pageByHandle
+  - pages
+  - paymentSettings
+  - predictiveSearch
+  - product
+  - productByHandle
+  - productRecommendations
+  - productTags
+  - productTypes
+  - products
+  - publicApiVersions
+  - search
+  - shop
+  - shopPayInstallmentsPricing
+  - sitemap
+  - urlRedirects
+mutation_field_groups:
+  cart:
+    - cartAttributesUpdate
+    - cartBillingAddressUpdate
+    - cartBuyerIdentityUpdate
+    - cartClone
+    - cartCreate
+    - cartDeliveryAddressesAdd
+    - cartDeliveryAddressesRemove
+    - cartDeliveryAddressesReplace
+    - cartDeliveryAddressesUpdate
+    - cartDiscountCodesUpdate
+    - cartGiftCardCodesAdd
+    - cartGiftCardCodesRemove
+    - cartGiftCardCodesUpdate
+    - cartLinesAdd
+    - cartLinesRemove
+    - cartLinesUpdate
+    - cartMetafieldDelete
+    - cartMetafieldsSet
+    - cartNoteUpdate
+    - cartPaymentUpdate
+    - cartPrepareForCompletion
+    - cartRemovePersonalData
+    - cartSelectedDeliveryOptionsUpdate
+    - cartSubmitForCompletion
+  customer:
+    - customerAccessTokenCreate
+    - customerAccessTokenCreateWithMultipass
+    - customerAccessTokenDelete
+    - customerAccessTokenRenew
+    - customerActivate
+    - customerActivateByUrl
+    - customerAddressCreate
+    - customerAddressDelete
+    - customerAddressUpdate
+    - customerCreate
+    - customerDefaultAddressUpdate
+    - customerRecover
+    - customerReset
+    - customerResetByUrl
+    - customerUpdate
+  shop_pay:
+    - shopPayPaymentRequestSessionCreate
+    - shopPayPaymentRequestSessionSubmit
+platform:
+  vendor: Shopify
+  product: Storefront API
+  vendor_docs: https://shopify.dev/docs/api/storefront
+  note: >-
+    The schema is Shopify's platform contract as deployed on Fnatic's domain, not a
+    Fnatic-authored API. It is recorded here because it is the machine-readable contract
+    an integrator or agent actually calls when talking to the Fnatic Shop.
+shop:
+  name: Fnatic Shop
+  description: >-
+    Shop Fnatic Official Apparel, Merchandise and Gear. Global Esports Entertainment
+    Brand since 2004. Free shipping over 100€. #ALWAYSFNATIC
+  primary_domain: https://shop.fnatic.com
+  myshopify_domain: fnatic-2021.myshopify.com
+  shop_id: '54359195821'
+  currency: EUR
+  country: GB
+  digital_wallets: [SHOPIFY_PAY, APPLE_PAY, GOOGLE_PAY]
+  verified_via: '{shop{name description primaryDomain{url host} paymentSettings{...}}}'
+x-evidence:
+  fetched: '2026-08-04'
+  url: https://shop.fnatic.com/api/2026-04/graphql.json
+  method: POST
+  http_status: 200
+  content_type: application/json
+  introspection_bytes: 755648

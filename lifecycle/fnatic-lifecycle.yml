@@ -1,0 +1,93 @@
+generated: '2026-08-04'
+method: probed
+source: 'https://shop.fnatic.com/api/2026-04/graphql.json (query publicApiVersions)'
+description: >-
+  Fnatic itself publishes no API versioning, deprecation or SLA policy, and operates no
+  status page. The versioning contract that actually governs the surface served from
+  shop.fnatic.com is Shopify's, and it is machine-readable: the publicApiVersions query on
+  Fnatic's own endpoint returns the live support matrix, captured verbatim below on
+  2026-08-04.
+versioning:
+  scheme: calendar-quarter path segment
+  pattern: https://shop.fnatic.com/api/{YYYY-MM}/graphql.json
+  current: '2026-07'
+  probed_at: '2026-08-04'
+  probe: '{publicApiVersions{handle displayName supported}}'
+  versions:
+    - handle: '2025-10'
+      supported: true
+    - handle: '2026-01'
+      supported: true
+    - handle: '2026-04'
+      supported: true
+    - handle: '2026-07'
+      supported: true
+    - handle: '2026-10'
+      supported: false
+      note: release candidate
+    - handle: unstable
+      supported: false
+  policy_docs: https://shopify.dev/docs/api/usage/versioning
+  platform_inherited: true
+ucp_versioning:
+  scheme: dated protocol versions
+  supported: ['2026-04-08', '2026-01-23']
+  latest_stable: '2026-04-08'
+  source: https://shop.fnatic.com/.well-known/ucp
+  discovery: >-
+    Both versions are individually addressable at
+    https://fnatic-2021.myshopify.com/.well-known/ucp/{version}
+deprecation:
+  policy_url: https://shopify.dev/docs/api/usage/versioning
+  platform_inherited: true
+  sunset_header: false
+  mechanism: >-
+    Quarterly version release with a supported/unsupported flag exposed through
+    publicApiVersions, plus @deprecated directives on individual schema fields.
+  deprecated_fields_in_current_schema: 51
+  fnatic_published_policy: false
+  note: >-
+    Recorded for accuracy, NOT wired as a Deprecation pointer — the policy is Shopify's
+    platform policy, not something Fnatic publishes or commits to.
+sla:
+  url: null
+  uptime_target: null
+  fnatic_published: false
+status_page:
+  url: null
+  fnatic_published: false
+  probes:
+    - url: https://status.fnatic.com/
+      result: no DNS record (curl exit 6, http 000)
+  platform_status_page: https://www.shopifystatus.com/
+  note: >-
+    Fnatic operates no status page of its own. The platform status page is Shopify's and
+    is recorded here for context only — no StatusPage pointer is emitted.
+changelog:
+  fnatic_published: false
+  note: >-
+    Fnatic publishes a news feed at https://fnatic.com/news, but it is editorial/esports
+    content, not a product or API changelog. No dated API changelog exists, so no
+    ChangeLog pointer is emitted.
+  platform_changelog: https://shopify.dev/changelog
+support:
+  help_center: https://help.fnatic.com/
+  platform: Freshdesk (help.fnatic.com CNAMEs to fdeuc-lb5-d9.freshdesk.com)
+  note: Consumer/retail support only — no developer support channel exists.
+deprecated_operations: []
+x-evidence:
+  - fetched: '2026-08-04'
+    url: https://shop.fnatic.com/api/2026-04/graphql.json
+    http_status: 200
+    query: publicApiVersions
+  - fetched: '2026-08-04'
+    url: https://shop.fnatic.com/.well-known/ucp
+    http_status: 200
+  - fetched: '2026-08-04'
+    url: https://status.fnatic.com/
+    http_status: 000
+    result: no DNS record
+  - fetched: '2026-08-04'
+    url: https://help.fnatic.com/
+    http_status: 200
+    result: 'Support : FNATIC HELP PORTAL'

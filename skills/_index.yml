@@ -1,0 +1,25 @@
+generated: '2026-08-04'
+method: generated
+source: graphql/fnatic-storefront.graphql + mcp/fnatic-mcp.yml + llms/fnatic-agents.md
+note: >-
+  Fnatic publishes no OpenAPI, so every operation named in these skills was grounded in a
+  field grepped out of the anonymously introspected GraphQL SDL, or in a tool name Fnatic
+  itself publishes in /agents.md. No operation names are invented. All four skills target
+  shop.fnatic.com — fnatic.com has no machine-readable surface to ground a skill in.
+skills:
+  - file: fnatic-find-gear.md
+    name: Find Fnatic gear, apparel and merch
+    api: graphql/fnatic-storefront.graphql
+    operations: [search, products, product, productByHandle, collection, collectionByHandle, predictiveSearch, productTags, productTypes, variantBySelectedOptions]
+  - file: fnatic-build-cart-and-checkout.md
+    name: Build a Fnatic Shop cart and hand off to checkout
+    api: graphql/fnatic-storefront.graphql
+    operations: [cartCreate, cartLinesAdd, cartLinesUpdate, cartLinesRemove, cartBuyerIdentityUpdate, cartDeliveryAddressesAdd, cartSelectedDeliveryOptionsUpdate, cartDiscountCodesUpdate, cartPrepareForCompletion, cartSubmitForCompletion, cartCompletionAttempt, cart]
+  - file: fnatic-answer-store-policy.md
+    name: Answer a Fnatic Shop policy or content question
+    api: graphql/fnatic-storefront.graphql
+    operations: [shop, page, pages, pageByHandle, blog, blogs, blogByHandle, article, articles, menu, metaobject, metaobjects]
+  - file: fnatic-customer-account.md
+    name: Authenticate a Fnatic Shop customer and read their orders
+    api: graphql/fnatic-storefront.graphql
+    operations: [customerAccessTokenCreate, customerAccessTokenRenew, customerAccessTokenDelete, customer, customerCreate, customerUpdate, customerRecover, customerAddressCreate, customerAddressUpdate, customerAddressDelete, customerDefaultAddressUpdate]

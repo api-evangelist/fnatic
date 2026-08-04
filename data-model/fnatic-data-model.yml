@@ -1,0 +1,311 @@
+generated: '2026-08-04'
+method: derived
+source: graphql/fnatic-storefront.graphql
+docs: https://shopify.dev/docs/api/storefront
+description: >-
+  The entity-relationship graph of the only machine-readable contract Fnatic serves — the
+  Shopify Storefront GraphQL schema on shop.fnatic.com. Derived mechanically from the
+  introspected SDL: every relationship below was read off a real field's return type, and
+  every entity named exists verbatim in graphql/fnatic-storefront.graphql. Scalar/money
+  wrapper types (MoneyV2, Count, SEO, Attribute) are omitted as value objects.
+identifiers:
+  style: opaque global relay IDs
+  format: 'base64-ish gid strings, e.g. gid://shopify/Product/{numeric}'
+  handle_alternative: >-
+    Product, Collection, Blog, Article and Page are also addressable by a URL `handle`
+    (productByHandle, collectionByHandle, blogByHandle, pageByHandle).
+  node_interface: >-
+    QueryRoot.node(id:) / nodes(ids:) resolve any HasMetafields/Node-implementing entity
+    by global id.
+domains:
+  catalog: [Product, ProductVariant, ProductOption, ProductOptionValue, Collection, Filter, TaxonomyCategory, Image, Media, SellingPlan, SellingPlanGroup]
+  cart: [Cart, CartLine, ComponentizableCartLine, CartBuyerIdentity, CartCost, CartDelivery, CartDeliveryGroup, CartDeliveryOption, CartDiscountCode, CartDiscountAllocation, AppliedGiftCard]
+  identity: [Customer, CustomerAccessToken, MailingAddress, SocialLoginProvider]
+  order: [Order, OrderLineItem, Fulfillment, FulfillmentLineItem, DiscountApplication]
+  payment: [ShopPayPaymentRequest, ShopPayPaymentRequestLineItem, ShopPayPaymentRequestReceipt, PaymentSettings, ShopPayInstallmentsPricing]
+  content: [Blog, Article, ArticleAuthor, Comment, Page, Menu, MenuItem, Metaobject, MetaobjectField]
+  store: [Shop, Brand, Domain, ShopPolicy, Location, LocationAddress, Sitemap, UrlRedirect, Localization]
+  extensibility: [Metafield, MetafieldReference, MetafieldParentResource]
+entities:
+  - name: Shop
+    root_query: shop
+    fields: 22
+    note: >-
+      The store singleton. Fnatic Shop, primary domain shop.fnatic.com, shop id
+      54359195821, EUR / GB, digital wallets SHOPIFY_PAY + APPLE_PAY + GOOGLE_PAY.
+  - name: Product
+    root_query: [product, productByHandle, products, productRecommendations]
+    fields: 36
+  - name: ProductVariant
+    fields: 30
+    note: The purchasable unit; what a cart line actually references via Merchandise.
+  - name: Collection
+    root_query: [collection, collectionByHandle, collections]
+    fields: 13
+  - name: Cart
+    root_query: cart
+    fields: 19
+  - name: Customer
+    root_query: customer
+    fields: 18
+    note: Requires a CustomerAccessToken; not reachable anonymously.
+  - name: Order
+    fields: 41
+    note: Reachable only through Customer.orders — no root order query.
+  - name: Blog
+    root_query: [blog, blogByHandle, blogs]
+    fields: 10
+  - name: Article
+    root_query: [article, articles]
+    fields: 19
+  - name: Page
+    root_query: [page, pageByHandle, pages]
+    fields: 12
+  - name: Metaobject
+    root_query: [metaobject, metaobjects]
+    fields: 8
+  - name: Location
+    root_query: locations
+    fields: 5
+  - name: ShopPayPaymentRequest
+    fields: 13
+relationships:
+  - from: Product
+    to: ProductVariant
+    kind: has_many
+    via: variants
+  - from: Product
+    to: ProductVariant
+    kind: has_one
+    via: selectedOrFirstAvailableVariant
+  - from: Product
+    to: ProductOption
+    kind: has_many
+    via: options
+  - from: Product
+    to: Collection
+    kind: has_many
+    via: collections
+  - from: Product
+    to: Image
+    kind: has_many
+    via: images
+  - from: Product
+    to: Image
+    kind: has_one
+    via: featuredImage
+  - from: Product
+    to: SellingPlanGroup
+    kind: has_many
+    via: sellingPlanGroups
+  - from: Product
+    to: TaxonomyCategory
+    kind: has_one
+    via: category
+  - from: ProductVariant
+    to: Product
+    kind: belongs_to
+    via: product
+  - from: ProductVariant
+    to: SelectedOption
+    kind: has_many
+    via: selectedOptions
+  - from: ProductVariant
+    to: SellingPlanAllocation
+    kind: has_many
+    via: sellingPlanAllocations
+  - from: ProductVariant
+    to: StoreAvailability
+    kind: has_many
+    via: storeAvailability
+  - from: ProductOption
+    to: ProductOptionValue
+    kind: has_many
+    via: optionValues
+  - from: Collection
+    to: Product
+    kind: has_many
+    via: products
+  - from: Cart
+    to: BaseCartLine
+    kind: has_many
+    via: lines
+  - from: Cart
+    to: CartBuyerIdentity
+    kind: has_one
+    via: buyerIdentity
+  - from: Cart
+    to: CartCost
+    kind: has_one
+    via: cost
+  - from: Cart
+    to: CartDeliveryGroup
+    kind: has_many
+    via: deliveryGroups
+  - from: Cart
+    to: CartDiscountCode
+    kind: has_many
+    via: discountCodes
+  - from: Cart
+    to: AppliedGiftCard
+    kind: has_many
+    via: appliedGiftCards
+  - from: CartLine
+    to: Merchandise
+    kind: has_one
+    via: merchandise
+    note: Merchandise is a union currently resolving to ProductVariant.
+  - from: CartLine
+    to: SellingPlanAllocation
+    kind: has_one
+    via: sellingPlanAllocation
+  - from: ComponentizableCartLine
+    to: CartLine
+    kind: has_many
+    via: lineComponents
+    note: Bundle lines; the schema blocks mixing bundles and add-ons (BUNDLES_AND_ADDONS_CANNOT_BE_MIXED).
+  - from: CartBuyerIdentity
+    to: Customer
+    kind: has_one
+    via: customer
+  - from: CartBuyerIdentity
+    to: DeliveryAddress
+    kind: has_many
+    via: deliveryAddressPreferences
+  - from: CartDeliveryGroup
+    to: MailingAddress
+    kind: has_one
+    via: deliveryAddress
+  - from: CartDeliveryGroup
+    to: CartDeliveryOption
+    kind: has_many
+    via: deliveryOptions
+  - from: CartDeliveryGroup
+    to: CartDeliveryOption
+    kind: has_one
+    via: selectedDeliveryOption
+  - from: CartDeliveryGroup
+    to: BaseCartLine
+    kind: has_many
+    via: cartLines
+  - from: Customer
+    to: Order
+    kind: has_many
+    via: orders
+  - from: Customer
+    to: MailingAddress
+    kind: has_many
+    via: addresses
+  - from: Customer
+    to: MailingAddress
+    kind: has_one
+    via: defaultAddress
+  - from: Order
+    to: OrderLineItem
+    kind: has_many
+    via: lineItems
+  - from: Order
+    to: Fulfillment
+    kind: has_many
+    via: successfulFulfillments
+  - from: Order
+    to: MailingAddress
+    kind: has_one
+    via: shippingAddress
+  - from: Order
+    to: MailingAddress
+    kind: has_one
+    via: billingAddress
+  - from: Order
+    to: DiscountApplication
+    kind: has_many
+    via: discountApplications
+  - from: OrderLineItem
+    to: ProductVariant
+    kind: has_one
+    via: variant
+  - from: Fulfillment
+    to: FulfillmentLineItem
+    kind: has_many
+    via: fulfillmentLineItems
+  - from: SellingPlanGroup
+    to: SellingPlan
+    kind: has_many
+    via: sellingPlans
+  - from: Blog
+    to: Article
+    kind: has_many
+    via: articles
+  - from: Article
+    to: Blog
+    kind: belongs_to
+    via: blog
+  - from: Article
+    to: ArticleAuthor
+    kind: has_one
+    via: authorV2
+  - from: Article
+    to: Comment
+    kind: has_many
+    via: comments
+  - from: Menu
+    to: MenuItem
+    kind: has_many
+    via: items
+  - from: Shop
+    to: ShopPolicy
+    kind: has_many
+    via: [privacyPolicy, refundPolicy, shippingPolicy, termsOfService, termsOfSale, legalNotice, contactInformation, subscriptionPolicy]
+  - from: Shop
+    to: Brand
+    kind: has_one
+    via: brand
+  - from: Shop
+    to: Domain
+    kind: has_one
+    via: primaryDomain
+  - from: Shop
+    to: PaymentSettings
+    kind: has_one
+    via: paymentSettings
+  - from: Metafield
+    to: MetafieldReference
+    kind: has_one
+    via: reference
+  - from: Metafield
+    to: MetafieldParentResource
+    kind: belongs_to
+    via: parentResource
+  - from: ShopPayPaymentRequestReceipt
+    to: ShopPayPaymentRequest
+    kind: belongs_to
+    via: paymentRequest
+polymorphism:
+  interfaces:
+    - name: Node
+      note: Global-id resolution for every addressable entity.
+    - name: HasMetafields
+      note: Product, ProductVariant, Collection, Cart, Customer, Order, Blog, Article, Page, Shop, Location, SellingPlan.
+    - name: BaseCartLine
+      implementors: [CartLine, ComponentizableCartLine]
+    - name: Media
+      implementors: [MediaImage, Video, ExternalVideo, Model3d]
+    - name: DisplayableError
+      note: Shared shape for every typed userError — see errors/fnatic-problem-types.yml.
+  unions:
+    - name: Merchandise
+      members: [ProductVariant]
+    - name: MetafieldReference
+      note: Any referenced entity (product, variant, collection, page, metaobject, media, …).
+    - name: MetafieldParentResource
+      note: Any metafield owner.
+counts:
+  types_total: 416
+  objects: 262
+  interfaces: 10
+  unions: 16
+  enums: 62
+  input_objects: 53
+  scalars: 13
+  relay_connections: 28
+subway: null

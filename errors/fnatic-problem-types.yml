@@ -1,0 +1,236 @@
+generated: '2026-08-04'
+method: derived
+source: graphql/fnatic-storefront.graphql
+format: graphql-user-errors
+description: >-
+  Fnatic publishes no OpenAPI, so there are no RFC 9457 problem+json responses to derive.
+  The real error contract lives in two places: the typed userErrors payloads in the
+  Storefront GraphQL schema served from shop.fnatic.com, and JSON-RPC 2.0 errors on the
+  UCP MCP endpoint. Every enum below was counted straight out of the introspected SDL;
+  the MCP error was observed live. Nothing is invented.
+rfc9457: false
+envelopes:
+  - surface: graphql
+    endpoint: https://shop.fnatic.com/api/2026-04/graphql.json
+    transport_status: 200
+    request_errors:
+      field: errors[]
+      shape: [message, locations, path, extensions.code]
+      note: Malformed, unauthorized and throttled requests surface here, not as HTTP 4xx.
+    mutation_errors:
+      interface: DisplayableError
+      shape: [field, message]
+      note: >-
+        Every mutation returns a typed *UserError list alongside its payload. Concrete
+        types add a `code` enum: CartUserError, CustomerUserError, SubmissionError,
+        CompletionError, MetafieldsSetUserError, MetafieldDeleteUserError,
+        UserErrorsShopPayPaymentRequestSessionUserErrors, CartOperationError.
+  - surface: mcp
+    endpoint: https://shop.fnatic.com/api/ucp/mcp
+    transport: JSON-RPC 2.0
+    shape: [error.code, error.message, error.data]
+error_types:
+  - name: CartUserError
+    fields: [code, field, message]
+    code_enum: CartErrorCode
+    code_count: 58
+    returned_by:
+      - cartCreate
+      - cartLinesAdd
+      - cartLinesUpdate
+      - cartLinesRemove
+      - cartBuyerIdentityUpdate
+      - cartDiscountCodesUpdate
+      - cartGiftCardCodesAdd
+      - cartGiftCardCodesUpdate
+      - cartGiftCardCodesRemove
+      - cartNoteUpdate
+      - cartAttributesUpdate
+      - cartDeliveryAddressesAdd
+      - cartDeliveryAddressesReplace
+      - cartDeliveryAddressesUpdate
+      - cartDeliveryAddressesRemove
+      - cartSelectedDeliveryOptionsUpdate
+      - cartBillingAddressUpdate
+      - cartPaymentUpdate
+      - cartClone
+      - cartRemovePersonalData
+    representative_codes:
+      - INVALID
+      - INVALID_MERCHANDISE_LINE
+      - MERCHANDISE_NOT_APPLICABLE
+      - MISSING_DISCOUNT_CODE
+      - INVALID_DELIVERY_GROUP
+      - INVALID_DELIVERY_OPTION
+      - PENDING_DELIVERY_GROUPS
+      - INVALID_PAYMENT
+      - PAYMENT_METHOD_NOT_SUPPORTED
+      - INVALID_PAYMENT_EMPTY_CART
+      - MISSING_CUSTOMER_ACCESS_TOKEN
+      - MINIMUM_NOT_MET
+      - MAXIMUM_EXCEEDED
+      - TOO_MANY_DELIVERY_ADDRESSES
+      - ONLY_ONE_DELIVERY_ADDRESS_CAN_BE_SELECTED
+      - INVALID_ZIP_CODE_FOR_COUNTRY
+      - ZIP_CODE_NOT_SUPPORTED
+      - VARIANT_REQUIRES_SELLING_PLAN
+      - SELLING_PLAN_NOT_APPLICABLE
+      - SERVICE_UNAVAILABLE
+      - CART_TOO_LARGE
+    agent_note: >-
+      ONLY_ONE_DELIVERY_ADDRESS_CAN_BE_SELECTED is the code an agent will hit most on
+      Fnatic specifically — the shop's UCP profile declares
+      allows_multi_destination.shipping = false, so any attempt to split a cart across
+      addresses fails here. ZIP_CODE_NOT_SUPPORTED matters too: the shop ships to a
+      declared country list, not everywhere.
+  - name: SubmissionError
+    fields: [code, message]
+    code_enum: SubmissionErrorCode
+    code_count: 95
+    returned_by: [cartSubmitForCompletion, cartPrepareForCompletion]
+    representative_codes:
+      - NO_DELIVERY_GROUP_SELECTED
+      - BUYER_IDENTITY_EMAIL_REQUIRED
+      - BUYER_IDENTITY_EMAIL_IS_INVALID
+      - DELIVERY_ADDRESS_REQUIRED
+      - DELIVERY_NO_DELIVERY_AVAILABLE
+      - DELIVERY_INVALID_POSTAL_CODE_FOR_COUNTRY
+      - DELIVERY_ZONE_NOT_FOUND
+      - MERCHANDISE_OUT_OF_STOCK
+      - MERCHANDISE_NOT_ENOUGH_STOCK_AVAILABLE
+      - MERCHANDISE_PRODUCT_NOT_PUBLISHED
+      - MERCHANDISE_LINE_LIMIT_REACHED
+      - PAYMENTS_METHOD_REQUIRED
+      - PAYMENTS_METHOD_UNAVAILABLE
+      - PAYMENTS_UNACCEPTABLE_PAYMENT_AMOUNT
+      - PAYMENTS_SHOPIFY_PAYMENTS_REQUIRED
+      - PAYMENTS_WALLET_CONTENT_MISSING
+      - REDIRECT_TO_CHECKOUT_REQUIRED
+      - TAXES_MUST_BE_DEFINED
+  - name: CompletionError
+    fields: [code, message]
+    code_enum: CompletionErrorCode
+    code_count: 13
+    returned_by: [cartCompletionAttempt]
+    codes:
+      - code: ERROR
+        meaning: Unclassified completion failure.
+      - code: INVENTORY_RESERVATION_ERROR
+        meaning: Inventory could not be reserved for the order.
+      - code: PAYMENT_ERROR
+        meaning: Payment failed.
+      - code: PAYMENT_TRANSIENT_ERROR
+        meaning: Payment failed transiently — safe to retry.
+      - code: PAYMENT_AMOUNT_TOO_SMALL
+        meaning: The order total is below the processor minimum.
+      - code: PAYMENT_GATEWAY_NOT_ENABLED_ERROR
+        meaning: The selected gateway is not enabled for this shop.
+      - code: PAYMENT_INSUFFICIENT_FUNDS
+        meaning: Insufficient funds on the payment method.
+      - code: PAYMENT_INVALID_PAYMENT_METHOD
+        meaning: The payment method is not valid.
+      - code: PAYMENT_INVALID_CURRENCY
+        meaning: The currency is not accepted.
+      - code: PAYMENT_INVALID_CREDIT_CARD
+        meaning: The card details are invalid.
+      - code: PAYMENT_INVALID_BILLING_ADDRESS
+        meaning: The billing address is invalid.
+      - code: PAYMENT_CARD_DECLINED
+        meaning: The issuer declined the card.
+      - code: PAYMENT_CALL_ISSUER
+        meaning: The issuer requires the cardholder to call.
+  - name: CustomerUserError
+    fields: [code, field, message]
+    code_enum: CustomerErrorCode
+    code_count: 15
+    returned_by:
+      - customerCreate
+      - customerUpdate
+      - customerActivate
+      - customerActivateByUrl
+      - customerRecover
+      - customerReset
+      - customerResetByUrl
+      - customerAccessTokenCreate
+      - customerAccessTokenCreateWithMultipass
+      - customerAddressCreate
+      - customerAddressUpdate
+      - customerAddressDelete
+      - customerDefaultAddressUpdate
+    codes:
+      - BLANK
+      - INVALID
+      - TAKEN
+      - TOO_LONG
+      - TOO_SHORT
+      - UNIDENTIFIED_CUSTOMER
+      - CUSTOMER_DISABLED
+      - PASSWORD_STARTS_OR_ENDS_WITH_WHITESPACE
+      - CONTAINS_HTML_TAGS
+      - CONTAINS_URL
+      - TOKEN_INVALID
+      - ALREADY_ENABLED
+      - NOT_FOUND
+      - BAD_DOMAIN
+      - INVALID_MULTIPASS_REQUEST
+  - name: MetafieldsSetUserError
+    fields: [code, elementIndex, field, message]
+    code_enum: MetafieldsSetUserErrorCode
+    code_count: 10
+    returned_by: [cartMetafieldsSet]
+    codes: [BLANK, INCLUSION, LESS_THAN_OR_EQUAL_TO, PRESENT, TOO_SHORT, TOO_LONG, INVALID_OWNER, INVALID_VALUE, INVALID_TYPE, APP_NOT_AUTHORIZED]
+  - name: MetafieldDeleteUserError
+    fields: [code, field, message]
+    code_enum: MetafieldDeleteErrorCode
+    code_count: 3
+    returned_by: [cartMetafieldDelete]
+    codes: [INVALID_OWNER, METAFIELD_DOES_NOT_EXIST, APP_NOT_AUTHORIZED]
+  - name: UserErrorsShopPayPaymentRequestSessionUserErrors
+    fields: [code, field, message]
+    code_enum: UserErrorsShopPayPaymentRequestSessionUserErrorsCode
+    code_count: 3
+    returned_by: [shopPayPaymentRequestSessionCreate, shopPayPaymentRequestSessionSubmit]
+    codes:
+      - code: PAYMENT_REQUEST_INVALID_INPUT
+        meaning: The payment request payload failed validation.
+      - code: PAYMENT_REQUEST_NOT_FOUND
+        meaning: No Shop Pay payment request session matched the token.
+      - code: IDEMPOTENCY_KEY_ALREADY_USED
+        meaning: >-
+          The idempotencyKey supplied to shopPayPaymentRequestSessionSubmit has already
+          been consumed. This is the only idempotency-aware error on the whole surface —
+          it confirms the charge was already attempted and must NOT be retried with a new
+          key.
+  - name: CartOperationError
+    fields: [code, message]
+    returned_by: ['Cart.warnings / operation errors on the Cart type']
+  - name: UserError
+    fields: [field, message]
+    note: The untyped base error object; DisplayableError is the shared interface.
+mcp_errors:
+  - surface: https://shop.fnatic.com/api/ucp/mcp
+    code: -32001
+    message: UCP discovery failed
+    data:
+      code: invalid_profile_url
+      content: 'Unable to fetch agent profile: Missing profile uri'
+      continue_url: https://fnatic-2021.myshopify.com/
+    observed: '2026-08-04'
+    http_status: 422
+    remediation: >-
+      Present a resolvable UCP agent profile URI on the request before calling tools/list
+      or any tool against the UCP endpoint.
+  - surface: https://shop.fnatic.com/api/ucp/mcp
+    code: 429
+    message: rate limited (per IP)
+    observed: false
+    source: "Fnatic's published agent instructions (/agents.md)"
+    remediation: back off on 429
+x-evidence:
+  - source: graphql/fnatic-storefront.graphql
+    kind: introspected SDL
+    fetched: '2026-08-04'
+  - source: https://shop.fnatic.com/api/ucp/mcp
+    kind: live JSON-RPC error response
+    fetched: '2026-08-04'
+    http_status: 422

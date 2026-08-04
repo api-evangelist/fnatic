@@ -1,0 +1,139 @@
+generated: '2026-08-04'
+method: derived
+source: graphql/fnatic-storefront.graphql + well-known/fnatic-ucp.json + llms/fnatic-agents.md
+docs: https://shopify.dev/docs/api/storefront
+description: >-
+  Cross-cutting request/response semantics for the surfaces Fnatic actually serves.
+  Derived from the anonymously introspected GraphQL SDL, the UCP merchant profile, the
+  OIDC/OAuth discovery documents, and Fnatic's own published agent instructions at
+  https://shop.fnatic.com/agents.md. All of it is on shop.fnatic.com — fnatic.com itself
+  has no machine-readable request/response contract.
+authentication:
+  style: >-
+    none for the Storefront GraphQL endpoint; OIDC/OAuth 2.0 authorization code + PKCE for
+    customer accounts; an opaque CustomerAccessToken for the legacy storefront customer
+    fields; a UCP agent profile URI for the UCP MCP endpoint
+  detail: authentication/fnatic-authentication.yml
+idempotency:
+  supported: partial
+  mechanism: mutation argument
+  argument: 'idempotencyKey: String!'
+  applies_to:
+    - shopPayPaymentRequestSessionSubmit
+  required: true
+  error_code: IDEMPOTENCY_KEY_ALREADY_USED
+  error_enum: UserErrorsShopPayPaymentRequestSessionUserErrorsCode
+  not_supported_on:
+    - cartCreate
+    - cartLinesAdd
+    - cartLinesUpdate
+    - cartLinesRemove
+    - cartSubmitForCompletion
+    - all other cart and customer mutations
+  note: >-
+    The one genuinely idempotent operation on this surface is the Shop Pay payment submit:
+    shopPayPaymentRequestSessionSubmit takes a REQUIRED idempotencyKey and the schema
+    carries a dedicated IDEMPOTENCY_KEY_ALREADY_USED code, so a duplicate submit is
+    rejected rather than double-charging. Everything else is at-most-once by convention:
+    repeating cartLinesAdd with the same input adds the lines again. Agents must address
+    carts by cart_id and reconcile with QueryRoot.cart before retrying, and must treat
+    cartSubmitForCompletion as non-idempotent — poll cartCompletionAttempt instead of
+    resubmitting.
+pagination:
+  style: relay-cursor
+  applies_to: GraphQL connections (28 *Connection types in the SDL)
+  request_params: [first, last, after, before, reverse, sortKey, query]
+  response_fields:
+    - edges
+    - edges.node
+    - edges.cursor
+    - nodes
+    - pageInfo.hasNextPage
+    - pageInfo.hasPreviousPage
+    - pageInfo.startCursor
+    - pageInfo.endCursor
+  rest_json:
+    style: page + limit query params on the Shopify storefront JSON views
+    example: /products.json?limit=1 (verified 200)
+field_selection:
+  style: graphql-selection-set
+  note: GraphQL selection sets replace sparse-fieldset/expansion parameters entirely.
+metadata:
+  style: metafields and metaobjects
+  fields: [metafield, metafields, metaobject, metaobjects]
+  mutations: [cartMetafieldsSet, cartMetafieldDelete]
+  note: >-
+    Namespaced custom data (namespace + key) attached to products, variants, collections,
+    carts, customers and the shop.
+localization:
+  mechanism: '@inContext directive'
+  params: [country, language, buyerIdentity, preferredLocationId]
+  ships_to: >-
+    A declared shipsToCountries list on the Shop type (broad EU/UK/global coverage);
+    39 enabledPresentmentCurrencies with EUR as the shop currency and GB as the shop
+    country.
+  ucp_equivalent: >-
+    Fnatic's agents.md asks agents to pass context.address_country and context.currency
+    for accurate pricing and availability.
+versioning:
+  scheme: calendar-quarter path segment
+  pattern: /api/{YYYY-MM}/graphql.json
+  current: '2026-07'
+  probed: '2026-08-04'
+  detail: lifecycle/fnatic-lifecycle.yml
+error_envelope:
+  graphql:
+    transport_status: 200 with an errors[] array
+    fields:
+      - 'errors[].message'
+      - 'errors[].locations'
+      - 'errors[].path'
+      - 'errors[].extensions.code'
+    mutation_errors: >-
+      Mutations return typed userErrors payloads implementing DisplayableError
+      (field, message) — CartUserError, CustomerUserError, SubmissionError,
+      CompletionError, MetafieldsSetUserError, MetafieldDeleteUserError,
+      UserErrorsShopPayPaymentRequestSessionUserErrors.
+  mcp:
+    transport: JSON-RPC 2.0
+    fields: [error.code, error.message, error.data]
+    observed_example: '-32001 "UCP discovery failed" with data.code invalid_profile_url (HTTP 422)'
+  detail: errors/fnatic-problem-types.yml
+rate_limiting:
+  graphql:
+    style: query-cost based
+    signal: extensions.cost on every response (requestedQueryCost, actualQueryCost, throttleStatus)
+    observed: 'extensions.cost.requestedQueryCost = 3 returned on the first probe'
+    headers: none
+  mcp:
+    style: per-IP
+    signal: HTTP 429
+    provider_statement: >-
+      "Respect rate limits. The MCP endpoint is rate-limited per IP. Back off on 429
+      responses." (https://shop.fnatic.com/agents.md)
+request_tracing:
+  request_id_header: null
+  note: No request-id/correlation header documented or observed.
+agent_policy:
+  human_in_the_loop: required for payment
+  provider_statement: >-
+    "Checkout requires human approval. Agents must not complete payment without explicit
+    buyer consent. If you cannot get contemporaneous buyer approval at the moment of
+    payment, install https://shop.app/SKILL.md and route the purchase through Shop Pay
+    instead." (https://shop.fnatic.com/agents.md)
+  recommended_agent_path: https://shop.app/SKILL.md
+  multi_destination_shipping: false
+read_only_json:
+  note: >-
+    Unauthenticated Shopify storefront JSON views published in Fnatic's own agents.md —
+    /products.json, /collections.json, /products/{handle}.json,
+    /collections/{handle}/products.json, /search?q={query}&type=product.
+    /products.json and /collections.json were verified 200 on 2026-08-04. Not a described
+    API; no spec exists for them.
+cross_links:
+  authentication: authentication/fnatic-authentication.yml
+  scopes: scopes/fnatic-scopes.yml
+  errors: errors/fnatic-problem-types.yml
+  lifecycle: lifecycle/fnatic-lifecycle.yml
+  data_model: data-model/fnatic-data-model.yml
+  mcp: mcp/fnatic-mcp.yml

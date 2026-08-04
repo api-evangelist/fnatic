@@ -1,0 +1,172 @@
+generated: '2026-08-04'
+method: derived
+source: mcp/fnatic-mcp.yml + graphql/fnatic-storefront.graphql + llms/fnatic-agents.md
+description: >-
+  Fnatic exposes no OpenAPI anywhere. Its two machine-readable surfaces are the Shopify
+  Storefront GraphQL API (anonymously introspectable at
+  https://shop.fnatic.com/api/2026-04/graphql.json) and the UCP shopping MCP endpoint at
+  https://shop.fnatic.com/api/ucp/mcp. This crosswalk binds each MCP tool Fnatic
+  advertises to the GraphQL field(s) that back it, so a tool can inherit a real input
+  contract from the SDL rather than a guessed one. Every GraphQL field named below was
+  grepped out of graphql/fnatic-storefront.graphql. IMPORTANT: the MCP tool names came
+  from Fnatic's published /agents.md flow, NOT from a live tools/list — that call is
+  gated behind a UCP agent profile URI — so no tool input schema has been observed and
+  every binding is by name and UCP capability semantics. Confidence is set accordingly.
+surfaces:
+  openapi:
+    present: false
+    note: >-
+      No OpenAPI/Swagger found on fnatic.com, shop.fnatic.com, id.fnatic.com or
+      fnatic-2021.myshopify.com (/openapi.json, /openapi.yaml, /swagger.json, /api-docs,
+      /docs, /redoc all 404 on 2026-08-04).
+  graphql:
+    endpoint: https://shop.fnatic.com/api/2026-04/graphql.json
+    gated: false
+    introspection_verified: '2026-08-04'
+    file: graphql/fnatic-storefront.graphql
+  mcp:
+    - endpoint: https://shop.fnatic.com/api/ucp/mcp
+      gated: true
+      tools_list_verified: '2026-08-04'
+      http_status: 422
+      note: >-
+        requires a UCP agent profile URI; tools/list returned JSON-RPC -32001
+        invalid_profile_url. Tool names below are from Fnatic's own /agents.md.
+    - endpoint: https://shop.fnatic.com/api/mcp
+      gated: null
+      http_status: 404
+      note: Shopify Storefront MCP is not enabled on this shop.
+  rest_json:
+    note: >-
+      Fnatic's own /agents.md publishes unauthenticated read-only JSON views —
+      /products/{handle}.json, /collections/{handle}/products.json, /products.json,
+      /collections.json. These are Shopify storefront JSON views, not a described API;
+      /products.json and /collections.json were verified 200 on 2026-08-04 and no spec
+      exists for them.
+crosswalk:
+  - tool: search_catalog
+    category: catalog
+    graphql: [search, products, predictiveSearch, productByHandle, collection, collectionByHandle]
+    rest: []
+    binding: graphql
+    confidence: medium
+    ucp_capability: dev.ucp.shopping.catalog.search
+    note: >-
+      UCP catalog search. QueryRoot.search(query, types, productFilters, first/after) and
+      QueryRoot.products(query, filters, sortKey) are the backing fields; predictiveSearch
+      covers the typeahead variant and collection/collectionByHandle the browse variant.
+      Confidence medium — bound by name and UCP capability, not by an observed inputSchema.
+  - tool: create_cart
+    category: cart
+    graphql: [cartCreate, cartLinesAdd, cartLinesUpdate, cartLinesRemove, cartBuyerIdentityUpdate, cartAttributesUpdate, cartNoteUpdate, cart]
+    rest: []
+    binding: graphql
+    confidence: medium
+    ucp_capability: dev.ucp.shopping.cart
+    note: >-
+      Mutation.cartCreate(input: CartInput) is the primary binding; the line/buyer/note
+      mutations back subsequent cart edits and QueryRoot.cart(id:) reads it back. One UCP
+      tool fans out to eight GraphQL mutations/fields.
+  - tool: create_checkout
+    category: checkout
+    graphql: [cartPrepareForCompletion, cart]
+    rest: []
+    binding: graphql
+    confidence: low
+    ucp_capability: dev.ucp.shopping.checkout
+    note: >-
+      UCP models checkout as a first-class resource; the Storefront GraphQL equivalent is
+      the cart plus cartPrepareForCompletion. The mapping is semantic, not structural —
+      UCP checkout objects have no 1:1 GraphQL type in this schema.
+  - tool: update_checkout
+    category: checkout
+    graphql:
+      - cartDeliveryAddressesAdd
+      - cartDeliveryAddressesReplace
+      - cartDeliveryAddressesUpdate
+      - cartDeliveryAddressesRemove
+      - cartSelectedDeliveryOptionsUpdate
+      - cartBillingAddressUpdate
+      - cartDiscountCodesUpdate
+      - cartGiftCardCodesAdd
+      - cartGiftCardCodesUpdate
+      - cartGiftCardCodesRemove
+      - cartPaymentUpdate
+    rest: []
+    binding: graphql
+    confidence: medium
+    ucp_capability: [dev.ucp.shopping.fulfillment, dev.ucp.shopping.discount]
+    note: >-
+      Shipping address and delivery-method selection (the fulfillment capability) plus
+      discount and gift-card application map cleanly onto eleven cart mutations. Fnatic's
+      UCP profile declares allows_multi_destination.shipping = false, which matches the
+      single-delivery-group shape of these mutations.
+  - tool: complete_checkout
+    category: checkout
+    graphql: [cartSubmitForCompletion, cartCompletionAttempt]
+    rest: []
+    binding: graphql
+    confidence: medium
+    ucp_capability: dev.ucp.shopping.order
+    note: >-
+      Mutation.cartSubmitForCompletion + QueryRoot.cartCompletionAttempt(attemptId:) are
+      the submit-and-poll pair. Fnatic states in /agents.md that this step requires
+      contemporaneous buyer approval; agents must not call it autonomously.
+mcp_only:
+  - tool: create_checkout
+    reason: >-
+      UCP defines a checkout resource with its own lifecycle. The Storefront GraphQL
+      schema has no Checkout type in the 2026-04 version — checkout state lives on the
+      Cart — so this tool is a UCP-layer construct rather than a projection of a field.
+  - tool: search_catalog
+    reason: >-
+      The UCP natural-language/intent query mode has no GraphQL equivalent —
+      QueryRoot.search takes a Shopify search-syntax string, not free-form buyer intent.
+      Fnatic's UCP profile also declares dev.shopify.catalog, a Shopify catalog extension
+      over the base UCP search/lookup capabilities that is not expressible in the SDL.
+graphql_only:
+  - capability: customer accounts
+    fields:
+      - customer
+      - customerCreate
+      - customerUpdate
+      - customerAccessTokenCreate
+      - customerAccessTokenCreateWithMultipass
+      - customerAccessTokenRenew
+      - customerAccessTokenDelete
+      - customerActivate
+      - customerActivateByUrl
+      - customerRecover
+      - customerReset
+      - customerResetByUrl
+      - customerAddressCreate
+      - customerAddressUpdate
+      - customerAddressDelete
+      - customerDefaultAddressUpdate
+    reason: >-
+      No UCP tool touches customer identity; that surface is OIDC (see
+      well-known/fnatic-openid-configuration.json) plus GraphQL only.
+  - capability: content and merchandising
+    fields: [blog, blogs, blogByHandle, article, articles, page, pages, pageByHandle, menu, metaobject, metaobjects, collections]
+    reason: Editorial and navigation content is reachable in GraphQL but has no UCP tool.
+  - capability: localization and commerce settings
+    fields: [localization, locations, paymentSettings, shopPayInstallmentsPricing, urlRedirects, sitemap, productTags, productTypes, publicApiVersions, shop]
+    reason: No UCP tool exposes these.
+  - capability: Shop Pay payment request sessions
+    fields: [shopPayPaymentRequestSessionCreate, shopPayPaymentRequestSessionSubmit]
+    reason: >-
+      Driven by the Shop skill (https://shop.app/SKILL.md) that Fnatic's own agents.md
+      recommends, not by store-level UCP tools.
+  - capability: cart metadata and privacy
+    fields: [cartMetafieldsSet, cartMetafieldDelete, cartRemovePersonalData, cartClone]
+    reason: No UCP tool equivalent.
+rest_only: []
+coverage:
+  mcp_tools_named: 5
+  mcp_tools_bound: 5
+  mcp_tools_with_observed_input_schema: 0
+  mcp_only: 2
+  graphql_query_fields: 35
+  graphql_mutation_fields: 41
+  graphql_fields_with_a_tool: 26
+  openapi_operations: 0

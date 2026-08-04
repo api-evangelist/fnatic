@@ -1,23 +1,194 @@
 aid: fnatic
 name: Fnatic
-description: 'Fnatic is a company surfaced via the API Evangelist harvest backlog (source: secondary-market)
-  and added to the network as a stub for full-pipeline profiling.'
+description: >-
+  Fnatic is a London-headquartered global esports performance brand founded in 2004,
+  fielding 20+ professional players across five game titles, operating four offices and
+  facilities in London, Berlin, Belgrade and Tokyo with 100+ staff, and claiming $16m+ in
+  prize money, 33m+ social followers and $55m raised from institutional investors. Beyond
+  competition it runs two commercial businesses: Fnatic Gear, an award-winning esports
+  hardware line (mice, keyboards, headsets and pads) launched in 2016, and an apparel and
+  merchandise store. Fnatic operates no developer program and publishes no OpenAPI, no
+  developer portal and no API documentation — fnatic.com is a Next.js front end over a
+  Sanity CMS with a first-party member-account system ("Fnatic ID") that exposes no
+  discovery document. Its one machine-readable surface is the Shopify-hosted store at
+  shop.fnatic.com, which serves an anonymously introspectable Storefront GraphQL API, a
+  Universal Commerce Protocol merchant profile with a UCP MCP commerce endpoint, OpenID
+  Connect and RFC 8414/9728 discovery for customer accounts, and a provider-authored
+  /agents.md (mirrored at /llms.txt) that tells AI agents which surface to use and
+  requires explicit buyer approval before any agent completes a payment.
 url: https://raw.githubusercontent.com/api-evangelist/fnatic/refs/heads/main/apis.yml
+image: https://cdn.sanity.io/images/5gii1snx/production/a1e70e04e9186899208f8b42117b105a1126ce16-1200x630.png
 x-type: company
 x-source: harvest:secondary-market
-x-tier: stub
-x-tier-reason: harvest
+x-tier: profiled
+x-tier-reason: enrichment-pipeline
 specificationVersion: '0.20'
 created: '2026-08-04'
 modified: '2026-08-04'
 tags:
 - Company
-apis: []
+- Esports
+- Gaming
+- Entertainment
+- Sports
+- Consumer Electronics
+- Gaming Hardware
+- Apparel
+- Ecommerce
+- Direct to Consumer
+- Agentic Commerce
+- Shopify
+- GraphQL
+- Universal Commerce Protocol
+- Model Context Protocol
+- United Kingdom
+apis:
+- aid: fnatic:storefront-graphql
+  name: Fnatic Shop Storefront GraphQL API
+  description: >-
+    The Shopify Storefront GraphQL API as served from Fnatic's own shop domain.
+    Introspection is anonymous — the full schema (416 types, 35 query fields, 41
+    mutations, 28 Relay connections) was retrieved without a Storefront access token on
+    2026-08-04. Covers the product catalog and collections, cart and checkout
+    preparation, editorial content, store policies, localization, customer accounts and
+    Shop Pay payment request sessions. This is the only machine-readable API contract
+    reachable on any fnatic.com host.
+  humanURL: https://shopify.dev/docs/api/storefront
+  baseURL: https://shop.fnatic.com/api/2026-04/graphql.json
+  tags:
+  - GraphQL
+  - Ecommerce
+  - Catalog
+  - Cart
+  - Checkout
+  properties:
+  - type: GraphQL
+    url: graphql/fnatic-storefront.graphql
+  - type: GraphQLManifest
+    url: graphql/fnatic-graphql.yml
+  - type: DataModel
+    url: data-model/fnatic-data-model.yml
+- aid: fnatic:ucp-mcp
+  name: Fnatic Shop UCP Commerce MCP Endpoint
+  description: >-
+    A Universal Commerce Protocol shopping service exposed over MCP (JSON-RPC 2.0) on
+    Fnatic's own shop host, advertised in Fnatic's /.well-known/ucp merchant profile and
+    in its own /agents.md. The profile declares UCP 2026-04-08 (and 2026-01-23), seven
+    shopping capabilities — checkout, fulfillment, discount, cart, order, catalog.search,
+    catalog.lookup — plus the dev.shopify.catalog extension and three payment handlers
+    (Google Pay, Shopify card, Shop Pay). An anonymous tools/list is gated: it returns
+    HTTP 422 with JSON-RPC -32001 invalid_profile_url until the agent presents a UCP
+    agent profile URI. Fnatic requires contemporaneous buyer approval before any agent
+    completes a payment.
+  humanURL: https://shop.fnatic.com/agents.md
+  baseURL: https://shop.fnatic.com/api/ucp/mcp
+  tags:
+  - MCP
+  - Agents
+  - UCP
+  - Agentic Commerce
+  - Ecommerce
+  properties:
+  - type: MCPServer
+    url: mcp/fnatic-mcp.yml
+  - type: ToolCrosswalk
+    url: mcp/fnatic-tool-crosswalk.yml
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
 - FN: APIs.json
   email: info@apis.io
+x-enrichment:
+  date: '2026-08-04'
+  status: enriched
+  artifacts_added: 26
+  pass: local-v1
 common:
+- type: DomainSecurity
+  url: security/fnatic-domain-security.yml
 - type: Website
+  url: https://fnatic.com/
+- type: Documentation
+  url: https://shop.fnatic.com/agents.md
+- type: LLMsTxt
+  url: llms/fnatic-llms.txt
+- type: WellKnown
+  url: well-known/fnatic-well-known.yml
+- type: GraphQL
+  url: graphql/fnatic-storefront.graphql
+- type: MCPServer
+  url: mcp/fnatic-mcp.yml
+- type: ToolCrosswalk
+  url: mcp/fnatic-tool-crosswalk.yml
+- type: Authentication
+  url: authentication/fnatic-authentication.yml
+- type: OAuthScopes
+  url: scopes/fnatic-scopes.yml
+- type: Conventions
+  url: conventions/fnatic-conventions.yml
+- type: Idempotency
+  url: conventions/fnatic-conventions.yml
+- type: ErrorCatalog
+  url: errors/fnatic-problem-types.yml
+- type: Lifecycle
+  url: lifecycle/fnatic-lifecycle.yml
+- type: Conformance
+  url: conformance/fnatic-conformance.yml
+- type: DataModel
+  url: data-model/fnatic-data-model.yml
+- type: AgentSkill
+  url: skills/_index.yml
+- type: AgenticAccess
+  url: agentic-access/fnatic-agentic-access.yml
+- type: Packages
+  url: packages/fnatic-packages.yml
+- type: GitHubOrganization
+  url: https://github.com/FNATIC
+- type: Support
+  url: https://help.fnatic.com/
+- type: HelpCenter
+  url: https://help.fnatic.com/
+- type: Blog
+  url: https://fnatic.com/news
+- type: About
+  url: https://fnatic.com/about
+- type: Careers
+  url: https://fnatic.com/careers
+- type: Partners
+  url: https://fnatic.com/partners
+- type: Brand
+  url: https://fnatic.com/brand
+- type: Community
+  url: https://fnatic.com/community
+- type: SignUp
+  url: https://fnatic.com/account/register
+- type: Login
+  url: https://fnatic.com/account/login
+- type: TermsOfService
+  url: https://fnatic.com/terms
+- type: PrivacyPolicy
+  url: https://fnatic.com/privacy
+- type: Shop
+  url: https://shop.fnatic.com/
+- type: RefundPolicy
+  url: https://shop.fnatic.com/policies/refund-policy
+- type: Twitter
+  url: https://twitter.com/fnatic
+- type: Instagram
+  url: https://www.instagram.com/fnatic/
+- type: Facebook
+  url: https://www.facebook.com/fnatic
+- type: YouTube
+  url: https://www.youtube.com/c/fnatic
+- type: TikTok
+  url: https://www.tiktok.com/@fnatic
+- type: Twitch
+  url: https://www.twitch.tv/fnatic
+- type: Discord
+  url: https://discord.com/invite/fnatic
+- type: LinkedIn
+  url: https://www.linkedin.com/company/fnatic/
+- type: Wikipedia
+  url: https://en.wikipedia.org/wiki/Fnatic
+- type: SecondaryMarket
   url: https://forgeglobal.com/fnatic_stock/

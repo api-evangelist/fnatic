@@ -1,0 +1,131 @@
+generated: '2026-08-04'
+method: probed
+source: live probes of fnatic.com, shop.fnatic.com and id.fnatic.com on 2026-08-04
+description: >-
+  Which cross-cutting standards the surfaces served from Fnatic's hosts actually conform
+  to. Every `conforms: true` below is backed by a document fetched or a live response
+  observed; every `false` is a probe that missed. Note the split: fnatic.com itself
+  conforms to nothing machine-readable, while the Shopify-hosted shop.fnatic.com carries
+  a substantial agentic-commerce stack.
+standards:
+  - id: graphql
+    conforms: true
+    host: shop.fnatic.com
+    evidence: >-
+      Full __schema introspection succeeded anonymously at
+      https://shop.fnatic.com/api/2026-04/graphql.json (416 types, 35 query fields,
+      41 mutations). SDL saved at graphql/fnatic-storefront.graphql.
+  - id: relay-cursor-connections
+    conforms: true
+    host: shop.fnatic.com
+    evidence: 28 *Connection types with edges/node/cursor + PageInfo in the SDL.
+  - id: mcp
+    conforms: true
+    host: shop.fnatic.com
+    version: JSON-RPC 2.0 transport
+    evidence: >-
+      https://shop.fnatic.com/api/ucp/mcp answers JSON-RPC and is declared in Fnatic's own
+      /agents.md and /.well-known/ucp. tools/list is gated on a UCP agent profile URI, so
+      the tool schemas were NOT observed — conformance is asserted on the endpoint and
+      protocol, not on an enumerated tool set.
+  - id: ucp
+    conforms: true
+    host: shop.fnatic.com
+    version: '2026-04-08'
+    supported_versions: ['2026-04-08', '2026-01-23']
+    evidence: >-
+      /.well-known/ucp returns a Universal Commerce Protocol merchant profile declaring
+      supported versions, the dev.ucp.shopping MCP + embedded services, seven shopping
+      capabilities (checkout, fulfillment, discount, cart, order, catalog.search,
+      catalog.lookup) plus the dev.shopify.catalog extension, and three payment handlers
+      (com.google.pay, dev.shopify.card, dev.shopify.shop_pay).
+    spec: https://ucp.dev/2026-04-08/specification/overview/
+  - id: openid-connect-discovery
+    conforms: true
+    host: shop.fnatic.com
+    evidence: >-
+      /.well-known/openid-configuration returns a valid OIDC discovery document
+      (issuer https://shopify.com/authentication/54359195821, authorization/token/jwks
+      endpoints, RS256, S256 PKCE, 33 ui_locales).
+  - id: oauth2
+    conforms: true
+    host: shop.fnatic.com
+    evidence: authorization_code + refresh_token + jwt-bearer grants advertised in discovery.
+  - id: rfc8414-oauth-authorization-server-metadata
+    conforms: true
+    host: shop.fnatic.com
+    evidence: /.well-known/oauth-authorization-server returns 200 with the same metadata document.
+  - id: rfc9728-oauth-protected-resource-metadata
+    conforms: true
+    host: shop.fnatic.com
+    evidence: >-
+      /.well-known/oauth-protected-resource returns
+      {"resource":"https://shop.fnatic.com","authorization_servers":[…],"bearer_methods_supported":["header"]}.
+  - id: rfc7636-pkce
+    conforms: true
+    host: shop.fnatic.com
+    evidence: 'code_challenge_methods_supported: [S256]'
+  - id: rfc8615-well-known-uris
+    conforms: true
+    host: shop.fnatic.com
+    evidence: Four /.well-known/ documents served (ucp, openid-configuration, oauth-authorization-server, oauth-protected-resource).
+  - id: llms-txt
+    conforms: true
+    host: shop.fnatic.com
+    evidence: >-
+      https://shop.fnatic.com/llms.txt returns 200 text/markdown with real agent
+      instructions. NOT served on fnatic.com (404).
+  - id: agents-md
+    conforms: true
+    host: shop.fnatic.com
+    evidence: >-
+      https://shop.fnatic.com/agents.md returns 200 text/markdown and is declared "the
+      canonical agent-facing description of the store".
+  - id: idempotency
+    conforms: partial
+    host: shop.fnatic.com
+    evidence: >-
+      Mutation.shopPayPaymentRequestSessionSubmit requires idempotencyKey: String! and the
+      schema carries a dedicated IDEMPOTENCY_KEY_ALREADY_USED error code. No other
+      mutation on the surface accepts an idempotency key — cart mutations are not
+      idempotent. See conventions/fnatic-conventions.yml.
+  - id: openapi
+    conforms: false
+    evidence: >-
+      /openapi.json, /openapi.yaml, /swagger.json, /api-docs, /docs, /redoc all 404 across
+      fnatic.com, shop.fnatic.com, id.fnatic.com and fnatic-2021.myshopify.com on 2026-08-04.
+  - id: asyncapi
+    conforms: false
+    evidence: No event/streaming/webhook surface published to unauthenticated callers.
+  - id: a2a
+    conforms: false
+    evidence: >-
+      /.well-known/agent-card.json and /.well-known/agent.json returned 404 on every host
+      probed (fnatic.com, shop.fnatic.com, id.fnatic.com).
+  - id: rfc9457-problem-details
+    conforms: false
+    evidence: >-
+      No application/problem+json anywhere. Errors are GraphQL typed userErrors and
+      JSON-RPC error objects — see errors/fnatic-problem-types.yml.
+  - id: rfc9116-security-txt
+    conforms: false
+    evidence: /.well-known/security.txt returned 404 on every host probed.
+  - id: rfc9727-api-catalog
+    conforms: false
+    evidence: /.well-known/api-catalog returned 404 on every host probed.
+  - id: rfc8594-sunset-header
+    conforms: false
+    evidence: >-
+      No Sunset/Deprecation headers observed; versioning is calendar-quarter path
+      segment with a publicApiVersions support matrix.
+compliance_program:
+  published: false
+  note: >-
+    Fnatic publishes no certifications, no trust center, no SOC 2 / ISO 27001 / PCI DSS
+    claim and no compliance page. No `Compliance` pointer is emitted. Card data on the
+    shop is handled by Shopify's gateway (gatewayMerchantId 54359195821), so PCI scope
+    sits with the platform, not with a Fnatic-published program.
+  claims_found: []
+x-evidence:
+  fetched: '2026-08-04'
+  hosts: [fnatic.com, shop.fnatic.com, id.fnatic.com, help.fnatic.com, fnatic-2021.myshopify.com]

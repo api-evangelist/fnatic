@@ -1,0 +1,86 @@
+generated: '2026-08-04'
+method: probed
+description: >-
+  The /.well-known/ discovery surface across every Fnatic host. The main site
+  (fnatic.com) serves nothing at any well-known path — every probe returned the SPA's
+  404. The Shopify-hosted shop (shop.fnatic.com) serves four real discovery documents:
+  a Universal Commerce Protocol merchant profile, OpenID Connect discovery and RFC 8414
+  authorization-server metadata for Shopify customer accounts, and an RFC 9728
+  protected-resource document. No security.txt (RFC 9116) is published on any host, and
+  no A2A agent card exists at either the canonical or the legacy path.
+hosts:
+  - host: https://shop.fnatic.com
+    documents:
+      - path: /.well-known/ucp
+        status: 200
+        content_type: application/json
+        file: fnatic-ucp.json
+        standard: Universal Commerce Protocol merchant profile
+      - path: /.well-known/openid-configuration
+        status: 200
+        content_type: application/json
+        file: fnatic-openid-configuration.json
+        standard: OpenID Connect Discovery 1.0
+      - path: /.well-known/oauth-authorization-server
+        status: 200
+        content_type: application/json
+        file: fnatic-oauth-authorization-server.json
+        standard: RFC 8414 OAuth 2.0 Authorization Server Metadata
+      - path: /.well-known/oauth-protected-resource
+        status: 200
+        content_type: application/json
+        file: fnatic-oauth-protected-resource.json
+        standard: RFC 9728 OAuth 2.0 Protected Resource Metadata
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+  - host: https://fnatic.com
+    documents:
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/api-catalog
+        status: 404
+      - path: /.well-known/ai-plugin.json
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+  - host: https://id.fnatic.com
+    note: >-
+      Internal Fnatic identity/admin application. Every request redirects to a Google
+      Workspace sign-in restricted to hd=fnatic.com; it is not a public API host.
+    documents:
+      - path: /.well-known/openid-configuration
+        status: 404
+      - path: /.well-known/oauth-authorization-server
+        status: 404
+      - path: /.well-known/oauth-protected-resource
+        status: 404
+      - path: /.well-known/jwks.json
+        status: 404
+      - path: /.well-known/security.txt
+        status: 404
+      - path: /.well-known/agent-card.json
+        status: 404
+      - path: /.well-known/agent.json
+        status: 404
+api_catalog:
+  published: false
+  note: >-
+    No RFC 9727 /.well-known/api-catalog on any host. No WellKnown api-catalog pointer is
+    claimed on that basis; the WellKnown pointer reflects the four real documents on
+    shop.fnatic.com.
+security_txt:
+  published: false
+  note: No RFC 9116 security.txt on fnatic.com, shop.fnatic.com or id.fnatic.com.
+x-evidence:
+  fetched: '2026-08-04'
+  method: 'GET (curl, follow redirects)'

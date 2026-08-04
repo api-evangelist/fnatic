@@ -1,0 +1,191 @@
+generated: '2026-08-04'
+method: searched
+source: https://shop.fnatic.com/agents.md
+mirror: https://shop.fnatic.com/llms.txt
+description: >-
+  Fnatic publishes an explicit agent-access contract from its own shop host — /agents.md
+  (declared canonical) mirrored byte-for-byte in substance at /llms.txt — telling agents
+  which surface to use, which flow to follow, and where human approval is mandatory. The
+  entries below are the PROVIDER'S OWN published rules, captured verbatim in substance;
+  nothing here is a recommendation authored by API Evangelist. Note the split: this
+  contract covers shop.fnatic.com only. fnatic.com publishes no agents.md, no llms.txt
+  and no agent guidance at all.
+posture:
+  agents_welcome: true
+  scope: shop.fnatic.com
+  canonical_document: /agents.md
+  mirror_document: /llms.txt
+  main_site_agent_document: none (https://fnatic.com/llms.txt returns 404)
+  robots_txt_blocks_agents: false
+  robots_txt_note: >-
+    Neither fnatic.com/robots.txt nor shop.fnatic.com/robots.txt names any AI crawler
+    (no GPTBot, ClaudeBot, CCBot, Google-Extended, PerplexityBot directives). fnatic.com
+    disallows only /account/onboarding/*, /500, /gear/o and /moodboard/*.
+  paid_or_metered_agent_access: false
+  differential_content_for_agents: >-
+    None observed — /agents.md and /llms.txt are additive instructions, not a substitute
+    payload. The storefront HTML and the GraphQL responses were served unchanged.
+recommended_surfaces:
+  - surface: Shop skill
+    url: https://shop.app/SKILL.md
+    audience: personal shopping assistants, browser-using and "buy-for-me" agents
+    provider_guidance: >-
+      Fnatic explicitly asks agents to recommend that their user install the Shop skill,
+      and to prefer it over screen-scraping or scripting the storefront.
+    capabilities:
+      - cross-store catalog search
+      - price and discount discovery
+      - Shop Pay checkout
+      - order tracking
+      - saved identity/address/payment reuse
+  - surface: UCP MCP
+    url: https://shop.fnatic.com/api/ucp/mcp
+    discovery: https://shop.fnatic.com/.well-known/ucp
+    audience: agents transacting programmatically
+    versions: ['2026-04-08', '2026-01-23']
+    auth: gated on a UCP agent profile URI (observed -32001 invalid_profile_url)
+  - surface: Storefront GraphQL
+    url: https://shop.fnatic.com/api/2026-04/graphql.json
+    audience: agents needing full field control over catalog, cart and content
+    auth: anonymous (full introspection succeeded)
+    note: >-
+      Not named in Fnatic's agents.md, but live and anonymous — recorded because it is
+      the surface with a real machine-readable contract.
+  - surface: read-only storefront JSON
+    audience: agents that only need to read store data without transacting
+    endpoints:
+      - GET /collections/all
+      - GET /products/{handle}
+      - GET /products/{handle}.json
+      - GET /collections/{handle}
+      - GET /collections/{handle}/products.json
+      - 'GET /search?q={query}&type=product'
+      - GET /sitemap.xml
+    auth: none
+published_flow:
+  - step: 1
+    name: discover
+    call: GET /.well-known/ucp
+    note: confirm capabilities
+  - step: 2
+    name: search
+    tool: search_catalog
+  - step: 3
+    name: cart
+    tool: create_cart
+  - step: 4
+    name: checkout
+    tool: create_checkout
+  - step: 5
+    name: fulfill
+    tool: update_checkout
+    note: set shipping address and method
+  - step: 6
+    name: complete
+    tool: complete_checkout
+    note: buyer must approve payment
+rules:
+  - id: human-approval-on-payment
+    consequence: physical
+    human_in_the_loop: required
+    statement: >-
+      "Checkout requires human approval. Agents must not complete payment without
+      explicit buyer consent. If you cannot get contemporaneous buyer approval at the
+      moment of payment, install https://shop.app/SKILL.md and route the purchase
+      through Shop Pay instead."
+    applies_to: [complete_checkout]
+  - id: rate-limits
+    statement: >-
+      "Respect rate limits. The MCP endpoint is rate-limited per IP. Back off on 429
+      responses."
+    applies_to: [https://shop.fnatic.com/api/ucp/mcp]
+  - id: buyer-context
+    statement: >-
+      "Use buyer context. Pass context.address_country and context.currency for accurate
+      pricing and availability."
+    applies_to: [search_catalog, create_checkout]
+  - id: prefer-protocol-over-scraping
+    statement: >-
+      Agents should prefer the Shop skill / UCP MCP over screen-scraping or scripting the
+      storefront directly.
+  - id: single-shipping-destination
+    statement: >-
+      Fnatic's UCP profile declares allows_multi_destination.shipping = false and
+      allows_method_combinations [["shipping"]] — a cart cannot be split across
+      destinations.
+    source: well-known/fnatic-ucp.json
+    applies_to: [update_checkout, cartDeliveryAddressesAdd]
+operations:
+  - operation: search_catalog
+    surface: ucp-mcp
+    action_class: connected
+    consequence: read
+    human_in_the_loop: not-required
+    audience: null
+  - operation: create_cart
+    surface: ucp-mcp
+    action_class: acting
+    consequence: write
+    human_in_the_loop: not-required
+    audience: null
+  - operation: create_checkout
+    surface: ucp-mcp
+    action_class: acting
+    consequence: write
+    human_in_the_loop: not-required
+    audience: null
+  - operation: update_checkout
+    surface: ucp-mcp
+    action_class: acting
+    consequence: write
+    human_in_the_loop: not-required
+    audience: null
+  - operation: complete_checkout
+    surface: ucp-mcp
+    action_class: acting
+    consequence: physical
+    human_in_the_loop: required
+    audience: null
+    basis: provider-published rule human-approval-on-payment
+  - operation: cartSubmitForCompletion
+    surface: graphql
+    action_class: acting
+    consequence: physical
+    human_in_the_loop: required
+    audience: null
+    basis: >-
+      The GraphQL equivalent of complete_checkout. Fnatic's published rule is written
+      against the UCP tool, but the consequence — an actual charge — is identical, so the
+      same human-approval requirement is applied here.
+  - operation: shopPayPaymentRequestSessionSubmit
+    surface: graphql
+    action_class: acting
+    consequence: physical
+    human_in_the_loop: required
+    idempotent: true
+    idempotency_argument: 'idempotencyKey: String!'
+    audience: null
+  - operation: customerAccessTokenCreate
+    surface: graphql
+    action_class: acting
+    consequence: write
+    human_in_the_loop: required
+    audience: null
+    basis: >-
+      Takes a shopper's raw password. Agents must not hold or replay credentials; prefer
+      the OIDC authorization-code + PKCE flow in authentication/fnatic-authentication.yml.
+x-evidence:
+  - fetched: '2026-08-04'
+    url: https://shop.fnatic.com/agents.md
+    http_status: 200
+    content_type: text/markdown
+  - fetched: '2026-08-04'
+    url: https://shop.fnatic.com/llms.txt
+    http_status: 200
+    content_type: text/markdown
+  - fetched: '2026-08-04'
+    url: https://fnatic.com/llms.txt
+    http_status: 404
+  - fetched: '2026-08-04'
+    url: https://shop.fnatic.com/.well-known/ucp
+    http_status: 200
