@@ -2,101 +2,103 @@ generated: '2026-08-04'
 method: searched
 status: published
 source: https://shop.fnatic.com/.well-known/ucp
-description: >-
-  Fnatic serves one live MCP endpoint from its own shop host: the Universal Commerce
-  Protocol (UCP) shopping service at https://shop.fnatic.com/api/ucp/mcp. It is
-  advertised in Fnatic's own /agents.md and /llms.txt and in the UCP merchant profile at
-  /.well-known/ucp. An anonymous tools/list is GATED — it returns JSON-RPC error -32001
-  "UCP discovery failed" (invalid_profile_url, "Missing profile uri"), so the agent must
-  present a UCP agent profile URI before the tool list is enumerable. The Shopify
-  Storefront MCP server at /api/mcp is NOT enabled on this shop (404). No MCP surface
-  exists on fnatic.com itself.
+description: 'Fnatic serves one live MCP endpoint from its own shop host: the Universal Commerce Protocol
+  (UCP) shopping service at https://shop.fnatic.com/api/ucp/mcp. It is advertised in Fnatic''s own /agents.md
+  and /llms.txt and in the UCP merchant profile at /.well-known/ucp. An anonymous tools/list is GATED
+  — it returns JSON-RPC error -32001 "UCP discovery failed" (invalid_profile_url, "Missing profile uri"),
+  so the agent must present a UCP agent profile URI before the tool list is enumerable. The Shopify Storefront
+  MCP server at /api/mcp is NOT enabled on this shop (404). No MCP surface exists on fnatic.com itself.'
 servers:
-  - name: fnatic-ucp-mcp
-    transport: http
-    url: https://shop.fnatic.com/api/ucp/mcp
-    canonical_url: https://fnatic-2021.myshopify.com/api/ucp/mcp
-    protocol: MCP (JSON-RPC 2.0) over the Universal Commerce Protocol
-    spec: https://ucp.dev/2026-04-08/specification/overview/
-    schema: https://ucp.dev/2026-04-08/services/shopping/mcp.openrpc.json
-    service: dev.ucp.shopping
-    auth: >-
-      gated — anonymous tools/list returned HTTP 422 with JSON-RPC error -32001
-      "UCP discovery failed" / data.code invalid_profile_url ("Missing profile uri").
-      A UCP agent profile URI must be presented before tools are enumerable.
-    tools_list:
-      verified: '2026-08-04'
-      http_status: 422
-      gated: true
-      tool_count: null
-    advertised_tools:
-      note: >-
-        Names below are taken verbatim from the "Typical Agent Flow" section Fnatic
-        publishes in its own /agents.md and /llms.txt. Their input schemas require an
-        authorized UCP tools/list call and are deliberately NOT recorded here — nothing
-        about their parameters has been observed.
-      source: llms/fnatic-agents.md
-      names:
-        - search_catalog
-        - create_cart
-        - create_checkout
-        - update_checkout
-        - complete_checkout
+- name: fnatic-ucp-mcp
+  transport: http
+  url: https://shop.fnatic.com/api/ucp/mcp
+  canonical_url: https://fnatic-2021.myshopify.com/api/ucp/mcp
+  protocol: MCP (JSON-RPC 2.0) over the Universal Commerce Protocol
+  spec: https://ucp.dev/2026-04-08/specification/overview/
+  schema: https://ucp.dev/2026-04-08/services/shopping/mcp.openrpc.json
+  service: dev.ucp.shopping
+  auth: gated — anonymous tools/list returned HTTP 422 with JSON-RPC error -32001 "UCP discovery failed"
+    / data.code invalid_profile_url ("Missing profile uri"). A UCP agent profile URI must be presented
+    before tools are enumerable.
+  tools_list:
+    verified: '2026-08-04'
+    http_status: 422
+    gated: true
+    tool_count: null
+  advertised_tools:
+    note: Names below are taken verbatim from the "Typical Agent Flow" section Fnatic publishes in its
+      own /agents.md and /llms.txt. Their input schemas require an authorized UCP tools/list call and
+      are deliberately NOT recorded here — nothing about their parameters has been observed.
+    source: llms/fnatic-agents.md
+    names:
+    - search_catalog
+    - create_cart
+    - create_checkout
+    - update_checkout
+    - complete_checkout
 not_available:
-  - name: shopify-storefront-mcp
-    url: https://shop.fnatic.com/api/mcp
-    http_status: 404
-    note: >-
-      The Shopify Storefront MCP server (search_catalog / get_product_details / get_cart /
-      update_cart / search_shop_policies_and_faqs) is not enabled on this shop, unlike
-      some other Shopify merchants in the catalog.
+- name: shopify-storefront-mcp
+  url: https://shop.fnatic.com/api/mcp
+  http_status: 404
+  note: The Shopify Storefront MCP server (search_catalog / get_product_details / get_cart / update_cart
+    / search_shop_policies_and_faqs) is not enabled on this shop, unlike some other Shopify merchants
+    in the catalog.
 ucp_profile:
   version: '2026-04-08'
-  supported_versions: ['2026-04-08', '2026-01-23']
-  services: [dev.ucp.shopping]
+  supported_versions:
+  - '2026-04-08'
+  - '2026-01-23'
+  services:
+  - dev.ucp.shopping
   capabilities:
-    - dev.ucp.shopping.checkout
-    - dev.ucp.shopping.fulfillment
-    - dev.ucp.shopping.discount
-    - dev.ucp.shopping.cart
-    - dev.ucp.shopping.order
-    - dev.ucp.shopping.catalog.search
-    - dev.ucp.shopping.catalog.lookup
-    - dev.shopify.catalog
+  - dev.ucp.shopping.checkout
+  - dev.ucp.shopping.fulfillment
+  - dev.ucp.shopping.discount
+  - dev.ucp.shopping.cart
+  - dev.ucp.shopping.order
+  - dev.ucp.shopping.catalog.search
+  - dev.ucp.shopping.catalog.lookup
+  - dev.shopify.catalog
   payment_handlers:
-    - com.google.pay
-    - dev.shopify.card
-    - dev.shopify.shop_pay
+  - com.google.pay
+  - dev.shopify.card
+  - dev.shopify.shop_pay
   file: ../well-known/fnatic-ucp.json
 agent_policy:
   human_approval_required: true
-  provider_statement: >-
-    "Checkout requires human approval. Agents must not complete payment without explicit
-    buyer consent." (https://shop.fnatic.com/agents.md)
-  rate_limit_statement: >-
-    "Respect rate limits. The MCP endpoint is rate-limited per IP. Back off on 429
-    responses." (https://shop.fnatic.com/agents.md)
+  provider_statement: '"Checkout requires human approval. Agents must not complete payment without explicit
+    buyer consent." (https://shop.fnatic.com/agents.md)'
+  rate_limit_statement: '"Respect rate limits. The MCP endpoint is rate-limited per IP. Back off on 429
+    responses." (https://shop.fnatic.com/agents.md)'
 discovery:
   llms_txt: https://shop.fnatic.com/llms.txt
   agents_md: https://shop.fnatic.com/agents.md
   ucp_profile: https://shop.fnatic.com/.well-known/ucp
 x-evidence:
-  - fetched: '2026-08-04'
-    url: https://shop.fnatic.com/api/ucp/mcp
-    method: 'POST tools/list'
-    http_status: 422
-    content_type: application/json
-    result: 'JSON-RPC error -32001 UCP discovery failed (invalid_profile_url)'
-  - fetched: '2026-08-04'
-    url: https://shop.fnatic.com/api/ucp/mcp
-    method: 'POST initialize'
-    http_status: 422
-    result: 'same -32001 invalid_profile_url response'
-  - fetched: '2026-08-04'
-    url: https://shop.fnatic.com/api/mcp
-    method: POST
-    http_status: 404
-  - fetched: '2026-08-04'
-    url: https://shop.fnatic.com/.well-known/ucp
-    http_status: 200
-    content_type: application/json
+- fetched: '2026-08-04'
+  url: https://shop.fnatic.com/api/ucp/mcp
+  method: POST tools/list
+  http_status: 422
+  content_type: application/json
+  result: JSON-RPC error -32001 UCP discovery failed (invalid_profile_url)
+- fetched: '2026-08-04'
+  url: https://shop.fnatic.com/api/ucp/mcp
+  method: POST initialize
+  http_status: 422
+  result: same -32001 invalid_profile_url response
+- fetched: '2026-08-04'
+  url: https://shop.fnatic.com/api/mcp
+  method: POST
+  http_status: 404
+- fetched: '2026-08-04'
+  url: https://shop.fnatic.com/.well-known/ucp
+  http_status: 200
+  content_type: application/json
+deployment:
+  mode: remote
+  endpoint: https://shop.fnatic.com/api/ucp/mcp
+  verified: probed
+  probe: live
+  tools: 13
+  checked: '2026-08-12'
+  source: catalog MCP census
