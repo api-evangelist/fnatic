@@ -34,6 +34,23 @@ tags:
 - Consumer Electronics
 - Gaming Hardware
 - Apparel
+- E-Commerce
+- Direct to Consumer
+- Agentic Commerce
+- Shopify
+- GraphQL
+- Universal Commerce Protocol
+- MCP
+- United Kingdom
+tags_raw:
+- Company
+- Esports
+- Gaming
+- Entertainment
+- Sports
+- Consumer Electronics
+- Gaming Hardware
+- Apparel
 - Ecommerce
 - Direct to Consumer
 - Agentic Commerce
@@ -56,6 +73,12 @@ apis:
   humanURL: https://shopify.dev/docs/api/storefront
   baseURL: https://shop.fnatic.com/api/2026-04/graphql.json
   tags:
+  - GraphQL
+  - E-Commerce
+  - Catalog
+  - Cart
+  - Checkout
+  tags_raw:
   - GraphQL
   - Ecommerce
   - Catalog
@@ -83,6 +106,12 @@ apis:
   humanURL: https://shop.fnatic.com/agents.md
   baseURL: https://shop.fnatic.com/api/ucp/mcp
   tags:
+  - MCP
+  - Agents
+  - UCP
+  - Agentic Commerce
+  - E-Commerce
+  tags_raw:
   - MCP
   - Agents
   - UCP
