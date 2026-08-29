@@ -17,6 +17,17 @@ description: >-
   /agents.md (mirrored at /llms.txt) that tells AI agents which surface to use and
   requires explicit buyer approval before any agent completes a payment.
 url: https://raw.githubusercontent.com/api-evangelist/fnatic/refs/heads/main/apis.yml
+deliveryModel:
+  model: saas
+  open_source: false
+  commercial: true
+  callable_host: false
+  label: Hosted service · you call their endpoint
+  confidence: medium
+  source:
+  - pricing
+  generated: '2026-08-28'
+  method: derived
 image: https://cdn.sanity.io/images/5gii1snx/production/a1e70e04e9186899208f8b42117b105a1126ce16-1200x630.png
 x-type: company
 x-source: harvest:secondary-market
