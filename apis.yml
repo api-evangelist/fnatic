@@ -116,6 +116,9 @@ apis:
     url: graphql/fnatic-graphql.yml
   - type: DataModel
     url: data-model/fnatic-data-model.yml
+  x-surface: platform-generated
+  x-platform: shopify
+  x-platform-surface: storefront-graphql
 - aid: fnatic:ucp-mcp
   name: Fnatic Shop UCP Commerce MCP Endpoint
   description: >-
@@ -147,6 +150,9 @@ apis:
     url: mcp/fnatic-mcp.yml
   - type: ToolCrosswalk
     url: mcp/fnatic-tool-crosswalk.yml
+  x-surface: platform-generated
+  x-platform: shopify
+  x-platform-surface: ucp
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com
